@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>对公陪伴智能助手 - 原型图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .phone-container {
+            width: 375px;
+            height: 812px;
+            background: #ffffff;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 状态栏 */
+        .status-bar {
+            height: 44px;
+            background: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #000;
+        }
+
+        /* 顶部标题区域 */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        /* 机器人头像和气泡 */
+        .assistant-intro {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px 0;
+        }
+
+        .robot-avatar {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .robot-avatar::before {
+            content: '🤖';
+            font-size: 30px;
+        }
+
+        .speech-bubble {
+            flex: 1;
+            background: white;
+            color: #333;
+            padding: 14px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.5;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .speech-bubble::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 20px;
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-right: 8px solid white;
+        }
+
+        /* 主内容区域 */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background: #f3f0ff;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* 消息容器 */
+        .messages-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        /* 消息气泡 */
+        .message {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            animation: fadeIn 0.3s ease;
+            width: 100%;
+            min-width: 0;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 左侧机器人消息 */
+        .message.left {
+            justify-content: flex-start;
+        }
+
+        .message.left .message-avatar {
+            width: 36px;
+            height: 36px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .message.left .message-avatar::before {
+            content: '🤖';
+            font-size: 20px;
+        }
+
+        .message.left > div {
+            max-width: 75%;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .message.left .message-bubble {
+            background: white;
+            color: #333;
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 75%;
+            font-size: 14px;
+            line-height: 1.5;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            min-width: 0;
+        }
+
+        /* 右侧用户消息 */
+        .message.right {
+            justify-content: flex-end;
+        }
+
+        .message.right .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 75%;
+            font-size: 14px;
+            line-height: 1.5;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            min-width: 0;
+        }
+
+        /* 链接样式 */
+        .message-link {
+            color: #3b82f6;
+            text-decoration: underline;
+            font-style: italic;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .message-link:hover {
+            color: #2563eb;
+        }
+
+        .message-link:active {
+            color: #1d4ed8;
+        }
+
+        /* 任务列表表格 */
+        .task-table-container {
+            margin-top: 12px;
+            max-width: 75%;
+            overflow-x: auto;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .task-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 400px;
+        }
+
+        .task-table th {
+            background: #f5f7fa;
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e5e7eb;
+            white-space: nowrap;
+        }
+
+        .task-table td {
+            padding: 12px;
+            font-size: 13px;
+            color: #666;
+            border-bottom: 1px solid #e5e7eb;
+            white-space: nowrap;
+        }
+
+        .task-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .task-table tr:hover {
+            background: #f9fafb;
+        }
+
+        /* 表格滚动条 */
+        .task-table-container::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .task-table-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .task-table-container::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        .task-table-container::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* 热点问题按钮 */
+        .hot-questions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+            max-width: 75%;
+            min-width: 0;
+        }
+
+        .hot-question-btn {
+            background: #f5f7fa;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            padding: 10px 16px;
+            font-size: 13px;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            font-family: inherit;
+        }
+
+        .hot-question-btn:hover {
+            background: #e5e7eb;
+            border-color: #d1d5db;
+        }
+
+        .hot-question-btn:active {
+            background: #d1d5db;
+            transform: scale(0.98);
+        }
+
+        /* 功能按钮区域 */
+        .function-buttons-wrapper {
+            background: white;
+            padding: 12px 0;
+            border-top: 1px solid #e5e7eb;
+            width: 100%;
+        }
+
+        .function-buttons {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 0 20px;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+            -webkit-overflow-scrolling: touch; /* iOS 平滑滚动 */
+            touch-action: pan-x; /* 允许横向滑动 */
+            scroll-behavior: smooth;
+            will-change: scroll-position;
+        }
+
+        .function-buttons::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        .function-btn {
+            background: #f5f7fa;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            white-space: nowrap;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .function-btn:active {
+            background: #e5e7eb;
+            transform: scale(0.98);
+        }
+
+        .function-icon {
+            font-size: 16px;
+        }
+
+        .function-text {
+            font-size: 13px;
+            font-weight: 400;
+            color: #333;
+        }
+
+        /* 滑动条 */
+        .scrollbar-container {
+            padding: 8px 20px;
+            background: white;
+        }
+
+        .scrollbar-track {
+            width: 100%;
+            height: 4px;
+            background: #e5e7eb;
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .scrollbar-thumb {
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            cursor: grab;
+            transition: background 0.2s;
+            min-width: 20px;
+        }
+
+        .scrollbar-thumb:active {
+            cursor: grabbing;
+            background: linear-gradient(135deg, #5568d3 0%, #653a8f 100%);
+        }
+
+        /* 底部输入区域 */
+        .input-area {
+            background: white;
+            padding: 12px 20px 16px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f5f7fa;
+            border-radius: 24px;
+            padding: 10px 16px;
+        }
+
+
+
+        .text-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 15px;
+            color: #333;
+            outline: none;
+            padding: 4px 0;
+        }
+
+        .text-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .send-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+        }
+
+        .send-btn::before {
+            content: '➤';
+            font-size: 18px;
+            color: white;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 400px) {
+            .phone-container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttonsContainer = document.getElementById('functionButtons');
+            const scrollbarTrack = document.getElementById('scrollbarTrack');
+            const scrollbarThumb = document.getElementById('scrollbarThumb');
+            
+            let isDragging = false;
+            let startX = 0;
+            let startScrollLeft = 0;
+            
+            // 更新滑动条位置
+            function updateScrollbar() {
+                const scrollWidth = buttonsContainer.scrollWidth;
+                const clientWidth = buttonsContainer.clientWidth;
+                const scrollLeft = buttonsContainer.scrollLeft;
+                const maxScroll = scrollWidth - clientWidth;
+                
+                if (maxScroll <= 0) {
+                    scrollbarThumb.style.width = '100%';
+                    scrollbarThumb.style.left = '0';
+                    return;
+                }
+                
+                const thumbWidth = (clientWidth / scrollWidth) * 100;
+                const thumbLeft = (scrollLeft / maxScroll) * (100 - thumbWidth);
+                
+                scrollbarThumb.style.width = thumbWidth + '%';
+                scrollbarThumb.style.left = thumbLeft + '%';
+            }
+            
+            // 根据滑动条位置滚动按钮
+            function scrollToPosition(percent) {
+                const scrollWidth = buttonsContainer.scrollWidth;
+                const clientWidth = buttonsContainer.clientWidth;
+                const maxScroll = scrollWidth - clientWidth;
+                const thumbWidth = (clientWidth / scrollWidth) * 100;
+                const maxThumbLeft = 100 - thumbWidth;
+                
+                if (maxScroll <= 0) return;
+                
+                const scrollLeft = (percent / maxThumbLeft) * maxScroll;
+                buttonsContainer.scrollLeft = scrollLeft;
+            }
+            
+            // 监听按钮区域滚动
+            buttonsContainer.addEventListener('scroll', updateScrollbar);
+            
+            // 窗口大小改变时更新
+            window.addEventListener('resize', updateScrollbar);
+            
+            // 初始化滑动条
+            updateScrollbar();
+            
+            // 拖动滑动条
+            scrollbarThumb.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                startX = e.clientX;
+                startScrollLeft = buttonsContainer.scrollLeft;
+                e.preventDefault();
+            });
+            
+            scrollbarTrack.addEventListener('mousedown', function(e) {
+                if (e.target === scrollbarTrack) {
+                    const rect = scrollbarTrack.getBoundingClientRect();
+                    const percent = ((e.clientX - rect.left) / rect.width) * 100;
+                    scrollToPosition(percent);
+                }
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                
+                const rect = scrollbarTrack.getBoundingClientRect();
+                const deltaX = e.clientX - startX;
+                const deltaPercent = (deltaX / rect.width) * 100;
+                
+                const scrollWidth = buttonsContainer.scrollWidth;
+                const clientWidth = buttonsContainer.clientWidth;
+                const maxScroll = scrollWidth - clientWidth;
+                const thumbWidth = (clientWidth / scrollWidth) * 100;
+                const maxThumbLeft = 100 - thumbWidth;
+                
+                if (maxScroll <= 0) return;
+                
+                const currentPercent = (startScrollLeft / maxScroll) * maxThumbLeft;
+                const newPercent = Math.max(0, Math.min(maxThumbLeft, currentPercent + deltaPercent));
+                
+                scrollToPosition(newPercent);
+            });
+            
+            document.addEventListener('mouseup', function() {
+                isDragging = false;
+            });
+            
+            // 触摸支持
+            scrollbarThumb.addEventListener('touchstart', function(e) {
+                isDragging = true;
+                startX = e.touches[0].clientX;
+                startScrollLeft = buttonsContainer.scrollLeft;
+                e.preventDefault();
+            });
+            
+            scrollbarTrack.addEventListener('touchstart', function(e) {
+                if (e.target === scrollbarTrack) {
+                    const rect = scrollbarTrack.getBoundingClientRect();
+                    const percent = ((e.touches[0].clientX - rect.left) / rect.width) * 100;
+                    scrollToPosition(percent);
+                    e.preventDefault();
+                }
+            });
+            
+            document.addEventListener('touchmove', function(e) {
+                if (!isDragging) return;
+                
+                const rect = scrollbarTrack.getBoundingClientRect();
+                const deltaX = e.touches[0].clientX - startX;
+                const deltaPercent = (deltaX / rect.width) * 100;
+                
+                const scrollWidth = buttonsContainer.scrollWidth;
+                const clientWidth = buttonsContainer.clientWidth;
+                const maxScroll = scrollWidth - clientWidth;
+                const thumbWidth = (clientWidth / scrollWidth) * 100;
+                const maxThumbLeft = 100 - thumbWidth;
+                
+                if (maxScroll <= 0) return;
+                
+                const currentPercent = (startScrollLeft / maxScroll) * maxThumbLeft;
+                const newPercent = Math.max(0, Math.min(maxThumbLeft, currentPercent + deltaPercent));
+                
+                scrollToPosition(newPercent);
+                e.preventDefault();
+            });
+            
+            document.addEventListener('touchend', function() {
+                isDragging = false;
+            });
+
+            // 查待办按钮点击事件
+            const btnTodo = document.getElementById('btnTodo');
+            const mainContent = document.getElementById('mainContent');
+            const assistantIntro = document.getElementById('assistantIntro');
+            const messagesContainer = document.getElementById('messagesContainer');
+
+            // 保存对话到 sessionStorage（关闭浏览器后自动清除）
+            function saveConversation() {
+                const messages = messagesContainer.innerHTML;
+                sessionStorage.setItem('hasConversation', 'true');
+                sessionStorage.setItem('conversationMessages', messages);
+            }
+
+            // 恢复对话
+            function restoreConversation() {
+                // 检查是否是从待办页面返回的
+                const fromTodoLink = sessionStorage.getItem('fromTodoLink');
+                const referrer = document.referrer;
+                const isFromTodoPage = fromTodoLink === 'true' || (referrer && referrer.includes('todo.html'));
+                
+                // 清除标记
+                if (fromTodoLink === 'true') {
+                    sessionStorage.removeItem('fromTodoLink');
+                }
+                
+                // 如果不是从待办页面返回（刷新或直接访问），清除对话记录
+                if (!isFromTodoPage) {
+                    sessionStorage.removeItem('hasConversation');
+                    sessionStorage.removeItem('conversationMessages');
+                    assistantIntro.style.display = 'flex';
+                    messagesContainer.style.display = 'none';
+                    return;
+                }
+                
+                // 如果是从待办页面返回的，恢复对话
+                const hasConversation = sessionStorage.getItem('hasConversation');
+                if (hasConversation === 'true') {
+                    const savedMessages = sessionStorage.getItem('conversationMessages');
+                    if (savedMessages) {
+                        // 隐藏初始介绍，显示对话
+                        assistantIntro.style.display = 'none';
+                        messagesContainer.style.display = 'flex';
+                        messagesContainer.innerHTML = savedMessages;
+                        
+                        // 重新绑定链接点击事件
+                        const viewTodoLink = document.getElementById('viewTodoLink');
+                        if (viewTodoLink) {
+                            viewTodoLink.addEventListener('click', function() {
+                                // 设置标记，表示要跳转到待办页面
+                                sessionStorage.setItem('fromTodoLink', 'true');
+                                window.location.href = 'todo.html';
+                            });
+                        }
+                        
+                        // 重新绑定热点问题按钮点击事件
+                        const hotQuestionBtns = document.querySelectorAll('.hot-question-btn');
+                        hotQuestionBtns.forEach(function(btn) {
+                            btn.addEventListener('click', function() {
+                                const question = this.getAttribute('data-question');
+                                
+                                // 查看在途流程 - 不做任何反应
+                                if (question === '查看在途流程') {
+                                    return;
+                                }
+                                
+                                // 根据任务类型查询待办
+                                if (question === '根据任务类型查询待办') {
+                                    // 添加用户消息
+                                    const userMsg = document.createElement('div');
+                                    userMsg.className = 'message right';
+                                    userMsg.innerHTML = '<div class="message-bubble">' + question + '</div>';
+                                    messagesContainer.appendChild(userMsg);
+                                    
+                                    // 延迟添加机器人回复
+                                    setTimeout(function() {
+                                        const robotMsg = document.createElement('div');
+                                        robotMsg.className = 'message left';
+                                        robotMsg.innerHTML = `
+                                            <div class="message-avatar"></div>
+                                            <div class="message-bubble">请输入您想查询的任务类型</div>
+                                        `;
+                                        messagesContainer.appendChild(robotMsg);
+                                        
+                                        // 滚动到底部
+                                        mainContent.scrollTop = mainContent.scrollHeight;
+                                        
+                                        // 设置状态，等待用户输入任务类型
+                                        sessionStorage.setItem('waitingForTaskType', 'true');
+                                        
+                                        // 保存对话
+                                        saveConversation();
+                                    }, 500);
+                                    
+                                    // 滚动到底部
+                                    mainContent.scrollTop = mainContent.scrollHeight;
+                                    
+                                    // 保存对话
+                                    saveConversation();
+                                    return;
+                                }
+                                
+                                // 其他按钮的默认行为
+                                const userMsg = document.createElement('div');
+                                userMsg.className = 'message right';
+                                userMsg.innerHTML = '<div class="message-bubble">' + question + '</div>';
+                                messagesContainer.appendChild(userMsg);
+                                
+                                // 滚动到底部
+                                mainContent.scrollTop = mainContent.scrollHeight;
+                                
+                                // 保存对话
+                                saveConversation();
+                            });
+                        });
+                        
+                        // 滚动到底部
+                        setTimeout(function() {
+                            mainContent.scrollTop = mainContent.scrollHeight;
+                        }, 100);
+                    } else {
+                        // 如果没有保存的消息，显示初始介绍
+                        assistantIntro.style.display = 'flex';
+                        messagesContainer.style.display = 'none';
+                    }
+                } else {
+                    // 如果没有对话记录，显示初始介绍
+                    assistantIntro.style.display = 'flex';
+                    messagesContainer.style.display = 'none';
+                }
+            }
+
+            // 页面加载时恢复对话
+            restoreConversation();
+
+            btnTodo.addEventListener('click', function() {
+                // 隐藏初始介绍
+                assistantIntro.style.display = 'none';
+                messagesContainer.style.display = 'flex';
+
+                // 清空之前的消息（如果有）
+                messagesContainer.innerHTML = '';
+
+                // 添加用户消息（右侧）
+                const userMessage = document.createElement('div');
+                userMessage.className = 'message right';
+                userMessage.innerHTML = '<div class="message-bubble">查待办</div>';
+                messagesContainer.appendChild(userMessage);
+
+                // 滚动到底部
+                mainContent.scrollTop = mainContent.scrollHeight;
+
+                // 延迟添加机器人回复
+                setTimeout(function() {
+                    const robotMessage = document.createElement('div');
+                    robotMessage.className = 'message left';
+                    
+                    // 生成日期（明天）
+                    const tomorrow = new Date();
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+                    const day = String(tomorrow.getDate()).padStart(2, '0');
+                    const dateStr = month + '-' + day;
+                    
+                    robotMessage.innerHTML = `
+                        <div class="message-avatar"></div>
+                        <div>
+                            <div class="message-bubble">
+                                查询到您当前有<span id="totalTasks">5</span>个待办任务，其中有<span id="urgentTasks">2</span>个任务需要在${dateStr}前完成。
+                                <br><span class="message-link" id="viewTodoLink">点此可查看待办列表</span>
+                            </div>
+                            <div class="hot-questions" id="hotQuestions">
+                                <button class="hot-question-btn" data-question="查看在途流程">查看在途流程</button>
+                                <button class="hot-question-btn" data-question="根据任务类型查询待办">根据任务类型查询待办</button>
+                                <button class="hot-question-btn" data-question="根据客户名称查询待办">根据客户名称查询待办</button>
+                            </div>
+                        </div>
+                    `;
+                    messagesContainer.appendChild(robotMessage);
+
+                    // 滚动到底部
+                    mainContent.scrollTop = mainContent.scrollHeight;
+
+                    // 添加链接点击事件
+                    const viewTodoLink = document.getElementById('viewTodoLink');
+                    viewTodoLink.addEventListener('click', function() {
+                        // 设置标记，表示要跳转到待办页面
+                        sessionStorage.setItem('fromTodoLink', 'true');
+                        window.location.href = 'todo.html';
+                    });
+
+                    // 添加热点问题按钮点击事件
+                    const hotQuestionBtns = document.querySelectorAll('.hot-question-btn');
+                    hotQuestionBtns.forEach(function(btn) {
+                        btn.addEventListener('click', function() {
+                            const question = this.getAttribute('data-question');
+                            
+                            // 查看在途流程 - 不做任何反应
+                            if (question === '查看在途流程') {
+                                return;
+                            }
+                            
+                            // 根据任务类型查询待办
+                            if (question === '根据任务类型查询待办') {
+                                // 添加用户消息
+                                const userMsg = document.createElement('div');
+                                userMsg.className = 'message right';
+                                userMsg.innerHTML = '<div class="message-bubble">' + question + '</div>';
+                                messagesContainer.appendChild(userMsg);
+                                
+                                // 延迟添加机器人回复
+                                setTimeout(function() {
+                                    const robotMsg = document.createElement('div');
+                                    robotMsg.className = 'message left';
+                                    robotMsg.innerHTML = `
+                                        <div class="message-avatar"></div>
+                                        <div class="message-bubble">请输入您想查询的任务类型</div>
+                                    `;
+                                    messagesContainer.appendChild(robotMsg);
+                                    
+                                    // 滚动到底部
+                                    mainContent.scrollTop = mainContent.scrollHeight;
+                                    
+                                    // 设置状态，等待用户输入任务类型
+                                    sessionStorage.setItem('waitingForTaskType', 'true');
+                                    
+                                    // 保存对话
+                                    saveConversation();
+                                }, 500);
+                                
+                                // 滚动到底部
+                                mainContent.scrollTop = mainContent.scrollHeight;
+                                
+                                // 保存对话
+                                saveConversation();
+                                return;
+                            }
+                            
+                            // 其他按钮的默认行为
+                            const userMsg = document.createElement('div');
+                            userMsg.className = 'message right';
+                            userMsg.innerHTML = '<div class="message-bubble">' + question + '</div>';
+                            messagesContainer.appendChild(userMsg);
+                            
+                            // 滚动到底部
+                            mainContent.scrollTop = mainContent.scrollHeight;
+                            
+                            // 保存对话
+                            saveConversation();
+                        });
+                    });
+
+                    // 保存对话
+                    saveConversation();
+                }, 500);
+            });
+
+            // 输入框和发送按钮事件
+            const textInput = document.querySelector('.text-input');
+            const sendBtn = document.querySelector('.send-btn');
+
+            // 生成任务表格
+            function generateTaskTable(taskType, taskCount, urgentCount) {
+                // 生成示例数据
+                const tableData = [];
+                for (let i = 0; i < taskCount; i++) {
+                    const date = new Date();
+                    date.setDate(date.getDate() + Math.floor(Math.random() * 14) - 7); // 随机日期，前后7天
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const dateStr = month + '-' + day;
+                    
+                    const categories = ['审批流程', '合同审核', '财务审批', '人事审批'];
+                    const names = ['张三', '李四', '王五', '赵六', '钱七'];
+                    
+                    tableData.push({
+                        date: dateStr,
+                        category: categories[Math.floor(Math.random() * categories.length)],
+                        name: names[Math.floor(Math.random() * names.length)]
+                    });
+                }
+
+                let tableHTML = '<table class="task-table"><thead><tr>';
+                tableHTML += '<th>任务到达时间</th><th>流程大类</th><th>发起人</th>';
+                tableHTML += '</tr></thead><tbody>';
+                
+                tableData.forEach(function(task) {
+                    tableHTML += `<tr><td>${task.date}</td><td>${task.category}</td><td>${task.name}</td></tr>`;
+                });
+                
+                tableHTML += '</tbody></table>';
+                
+                return '<div class="task-table-container">' + tableHTML + '</div>';
+            }
+
+            // 发送消息函数
+            function sendMessage() {
+                const inputValue = textInput.value.trim();
+                if (!inputValue) return;
+
+                // 检查是否在等待任务类型输入
+                const waitingForTaskType = sessionStorage.getItem('waitingForTaskType');
+                
+                if (waitingForTaskType === 'true') {
+                    // 清除等待状态
+                    sessionStorage.removeItem('waitingForTaskType');
+                    
+                    // 添加用户消息（右侧）
+                    const userMsg = document.createElement('div');
+                    userMsg.className = 'message right';
+                    userMsg.innerHTML = '<div class="message-bubble">' + inputValue + '</div>';
+                    messagesContainer.appendChild(userMsg);
+                    
+                    // 滚动到底部
+                    mainContent.scrollTop = mainContent.scrollHeight;
+                    
+                    // 延迟添加机器人回复
+                    setTimeout(function() {
+                        const taskCount = Math.floor(Math.random() * 10) + 3; // 3-12个任务
+                        const urgentCount = Math.floor(Math.random() * (taskCount - 1)) + 1; // 至少1个，最多taskCount-1个
+                        
+                        const robotMsg = document.createElement('div');
+                        robotMsg.className = 'message left';
+                        robotMsg.innerHTML = `
+                            <div class="message-avatar"></div>
+                            <div>
+                                <div class="message-bubble">
+                                    查询到您当前有${taskCount}个${inputValue}的任务，其中有${urgentCount}个在7天内需要完成。
+                                </div>
+                                ${generateTaskTable(inputValue, taskCount, urgentCount)}
+                            </div>
+                        `;
+                        messagesContainer.appendChild(robotMsg);
+                        
+                        // 滚动到底部
+                        mainContent.scrollTop = mainContent.scrollHeight;
+                        
+                        // 保存对话
+                        saveConversation();
+                    }, 500);
+                    
+                    // 清空输入框
+                    textInput.value = '';
+                } else {
+                    // 普通消息发送（如果需要的话）
+                    const userMsg = document.createElement('div');
+                    userMsg.className = 'message right';
+                    userMsg.innerHTML = '<div class="message-bubble">' + inputValue + '</div>';
+                    messagesContainer.appendChild(userMsg);
+                    
+                    // 滚动到底部
+                    mainContent.scrollTop = mainContent.scrollHeight;
+                    
+                    // 清空输入框
+                    textInput.value = '';
+                    
+                    // 保存对话
+                    saveConversation();
+                }
+            }
+
+            // 发送按钮点击事件
+            sendBtn.addEventListener('click', sendMessage);
+
+            // 输入框回车事件
+            textInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="phone-container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <span>9:41</span>
+            <span>📶 📶 🔋</span>
+        </div>
+
+        <!-- 顶部标题区域 -->
+        <div class="header">
+            <div class="header-title">对公陪伴智能助手</div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="main-content" id="mainContent">
+            <div class="assistant-intro" id="assistantIntro">
+                <div class="robot-avatar"></div>
+                <div class="speech-bubble">
+                    您好，我是您的工作小助手，有什么需要，长按跟我说哦！
+                </div>
+            </div>
+            <div class="messages-container" id="messagesContainer" style="display: none;"></div>
+        </div>
+
+        <!-- 功能按钮区域（输入框上方） -->
+        <div class="function-buttons-wrapper">
+            <div class="function-buttons" id="functionButtons">
+                <button class="function-btn">
+                    <span class="function-icon">👤</span>
+                    <span class="function-text">查客户</span>
+                </button>
+                <button class="function-btn" id="btnTodo">
+                    <span class="function-icon">📋</span>
+                    <span class="function-text">查待办</span>
+                </button>
+                <button class="function-btn">
+                    <span class="function-icon">⏰</span>
+                    <span class="function-text">查临期</span>
+                </button>
+                <button class="function-btn">
+                    <span class="function-icon">📊</span>
+                    <span class="function-text">查业绩</span>
+                </button>
+                <button class="function-btn">
+                    <span class="function-icon">📦</span>
+                    <span class="function-text">查产品</span>
+                </button>
+            </div>
+            <div class="scrollbar-container">
+                <div class="scrollbar-track" id="scrollbarTrack">
+                    <div class="scrollbar-thumb" id="scrollbarThumb"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部输入区域 -->
+        <div class="input-area">
+            <div class="input-container">
+                <input type="text" class="text-input" placeholder="输入您的问题...">
+                <button class="send-btn" title="发送"></button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
